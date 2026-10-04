@@ -1,0 +1,23 @@
+{
+  "description": "极速赛车 · 微信小游戏",
+  "compileType": "game",
+  "appid": "touristappid",
+  "projectname": "minigame-racing",
+  "packOptions": {
+    "ignore": [
+      { "type": "folder", "value": "web-preview" },
+      { "type": "folder", "value": "test" },
+      { "type": "folder", "value": "tools" },
+      { "type": "file", "value": "README.md" }
+    ],
+    "include": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": false,
+    "minified": true,
+    "uglifyFileName": false
+  },
+  "condition": {}
+}
