@@ -6,7 +6,7 @@
    * 让小游戏代码无需任何改动即可在网页里运行。
    */
 
-  var MODULES = ['js/core.js', 'js/storage.js', 'js/sound.js', 'js/render.js', 'js/main.js', 'game.js'];
+  var MODULES = ['js/core.js', 'js/cars.js', 'js/storage.js', 'js/sound.js', 'js/render.js', 'js/main.js', 'game.js'];
   var registry = {};
 
   function normalize(base, p) {

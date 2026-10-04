@@ -5,6 +5,7 @@
  */
 
 var RaceGame = require('./core.js').RaceGame;
+var carsMod = require('./cars.js');
 var Renderer = require('./render.js');
 var storage = require('./storage.js');
 var sound = require('./sound.js');
@@ -41,8 +42,16 @@ function boot() {
   }
 
   var renderer = new Renderer(canvas, view);
-  var game = new RaceGame({ width: view.width, height: view.height });
+  var car = carsMod.find(storage.getCar());
+  var game;
+  newGame();
   game.best = storage.getBest();
+
+  // 按当前选择的车型重建游戏实例（操控/体积随之生效）
+  function newGame() {
+    game = new RaceGame({ width: view.width, height: view.height, handling: car.handling, size: car.size });
+    game.best = storage.getBest();
+  }
 
   var raf = typeof canvas.requestAnimationFrame === 'function'
     ? canvas.requestAnimationFrame.bind(canvas)
@@ -54,8 +63,9 @@ function boot() {
   sound.setEnabled(!muted);
   renderer.muted = muted;
 
-  var scene = 'menu'; // menu | playing | over
+  var scene = 'menu'; // menu | garage | playing | over
   var menuScroll = 0;
+  var garageIdx = 0;
   var particles = [];
   var shake = 0;
   var curTime = 0;
@@ -112,6 +122,24 @@ function boot() {
     var L = renderer.layout;
     if (scene === 'menu') {
       if (hit(L.btnStart, x, y)) startRun();
+      else if (hit(L.btnGarage, x, y)) {
+        garageIdx = Math.max(0, carsMod.CARS.indexOf(car));
+        scene = 'garage';
+      }
+      return;
+    }
+    if (scene === 'garage') {
+      var total = carsMod.CARS.length;
+      if (hit(L.btnPrev, x, y)) garageIdx = (garageIdx + total - 1) % total;
+      else if (hit(L.btnNext, x, y)) garageIdx = (garageIdx + 1) % total;
+      else if (hit(L.btnUse, x, y)) {
+        car = carsMod.CARS[garageIdx];
+        storage.setCar(car.id);
+        newGame();
+        scene = 'menu';
+      } else if (hit(L.btnBack, x, y)) {
+        scene = 'menu';
+      }
       return;
     }
     if (scene === 'over') {
@@ -186,7 +214,17 @@ function boot() {
   }
 
   function draw(now) {
-    renderer.draw(scene, game, { particles: particles, shake: shake }, now);
+    renderer.draw(scene, game, {
+      particles: particles,
+      shake: shake,
+      scroll: menuScroll,
+      car: car,
+      browseCar: carsMod.CARS[garageIdx],
+      carIdx: garageIdx,
+      carTotal: carsMod.CARS.length,
+      isCurrent: carsMod.CARS[garageIdx] === car,
+      carName: car.name
+    }, now);
   }
 
   function frame(now) {
@@ -205,7 +243,10 @@ function boot() {
     globalThis.__racing = {
       getGame: function () { return game; },
       getScene: function () { return scene; },
+      getCar: function () { return car; },
+      setCarByIdx: function (i) { car = carsMod.CARS[i]; newGame(); },
       start: startRun,
+      openGarage: function () { garageIdx = Math.max(0, carsMod.CARS.indexOf(car)); scene = 'garage'; },
       tap: handleTap,
       layout: function () { return renderer.layout; }
     };

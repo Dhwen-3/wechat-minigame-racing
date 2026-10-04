@@ -27,11 +27,13 @@ function RaceGame(options) {
   this.lanes = options.lanes || 4;
   this.width = options.width || 390;
   this.height = options.height || 780;
+  this.handling = options.handling || 14;   // 操控：越大越跟手（位移插值系数）
+  this.sizeScale = options.size || 1;       // 车身体积缩放（影响绘制与命中盒）
 
   this.roadW = Math.min(this.width - 48, 430);
   this.roadX = (this.width - this.roadW) / 2;
   this.laneW = this.roadW / this.lanes;
-  this.carW = this.laneW * 0.7;
+  this.carW = this.laneW * 0.7 * this.sizeScale;
   this.carH = this.carW * 1.85;
   this.playerY = this.height - this.carH * 1.6;
 
@@ -123,9 +125,9 @@ RaceGame.prototype.update = function (dt) {
   this.roadSpeed = this.currentRoadSpeed();
   this.distance += this.roadSpeed * dt;
 
-  // 玩家平滑跟随手指
+  // 玩家平滑跟随手指（跟手速度由车型操控决定）
   var p = this.player;
-  p.x += (p.targetX - p.x) * Math.min(1, dt * 14);
+  p.x += (p.targetX - p.x) * Math.min(1, dt * this.handling);
 
   // 定时生成敌车
   this.spawnCooldown -= dt;

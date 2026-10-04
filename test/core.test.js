@@ -149,6 +149,27 @@ function makeGame(overrides) {
   check('重置后可重新开始', g.state === 'running' && g.enemies.length === 0 && g.distance === 0);
 }
 
+// 12. 车型参数：体积缩放与操控跟手性
+{
+  const base = makeGame();
+  const big = makeGame({ size: 1.08 });
+  check('体积缩放车身宽', Math.abs(big.carW - base.carW * 1.08) < 0.001);
+  check('体积缩放命中尺寸', Math.abs(big.carH - base.carH * 1.08) < 0.001);
+  const slow = makeGame({ handling: 11, rand: lcg(7) });
+  const fast = makeGame({ handling: 24, rand: lcg(7) });
+  slow.setPlayerTarget(slow.player.x + 40);
+  fast.setPlayerTarget(fast.player.x + 40);
+  const s0 = slow.player.x;
+  const f0 = fast.player.x;
+  slow.update(0.05);
+  fast.update(0.05);
+  check('高操控跟手更快', Math.abs(fast.player.x - f0) > Math.abs(slow.player.x - s0), {
+    slow: Math.abs(slow.player.x - s0),
+    fast: Math.abs(fast.player.x - f0)
+  });
+  check('操控默认值 14', makeGame().handling === 14);
+}
+
 console.log('通过 ' + passed + ' 项');
 if (failures.length) {
   console.error('失败 ' + failures.length + ' 项:');

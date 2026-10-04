@@ -7,6 +7,7 @@
 
 var KEY_BEST = 'racing_best';
 var KEY_MUTE = 'racing_mute';
+var KEY_CAR = 'racing_car';
 
 function read(key) {
   try {
@@ -29,5 +30,10 @@ module.exports = {
   },
   setBest: function (value) { write(KEY_BEST, Math.floor(value)); },
   getMute: function () { return read(KEY_MUTE) === true; },
-  setMute: function (value) { write(KEY_MUTE, !!value); }
+  setMute: function (value) { write(KEY_MUTE, !!value); },
+  getCar: function () {
+    var v = read(KEY_CAR);
+    return typeof v === 'string' && v ? v : null;
+  },
+  setCar: function (id) { write(KEY_CAR, String(id)); }
 };
